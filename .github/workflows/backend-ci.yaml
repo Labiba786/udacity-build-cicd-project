@@ -11,9 +11,6 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: starter/backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -28,15 +25,14 @@ jobs:
 
       - name: Install dependencies
         run: pipenv install --dev
+        working-directory: starter/backend
 
       - name: Run linter
         run: pipenv run lint
+        working-directory: starter/backend
 
   test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: starter/backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -51,20 +47,19 @@ jobs:
 
       - name: Install dependencies
         run: pipenv install --dev
+        working-directory: starter/backend
 
       - name: Run tests
         run: pipenv run test
+        working-directory: starter/backend
 
   build:
     needs: [lint, test]
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: starter/backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: |
-          docker build -t mp-backend:latest .
+        run: docker build --tag mp-backend:latest .
+        working-directory: starter/backend
