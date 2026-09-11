@@ -1,68 +1,67 @@
-name: Backend CI
+name: Frontend CI
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - 'starter/backend/**'
+      - 'starter/frontend/**'
   workflow_dispatch:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: starter/frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.10'
-
-      - name: Install Pipenv
-        run: pip install pipenv
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: starter/frontend/package-lock.json
 
       - name: Install dependencies
-        run: pipenv install --dev
-        working-directory: starter/backend
+        run: npm ci
 
       - name: Run linter
-        run: pipenv run lint
-        working-directory: starter/backend
+        run: npm run lint
 
   test:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: starter/frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.10'
-
-      - name: Install Pipenv
-        run: pip install pipenv
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: starter/frontend/package-lock.json
 
       - name: Install dependencies
-        run: pipenv install --dev
-        working-directory: starter/backend
+        run: npm ci
 
-      - name: Run tests
-        run: pipenv run test
-        working-directory: starter/backend
+      - name: Run unit tests
+        run: CI=true npm test
 
   build:
     needs: [lint, test]
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: starter/frontend
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build --tag mp-backend:latest .
-        working-directory: starter/backend
+        run: docker build --build-arg=REACT_APP_MOVIE_API_URL=http://localhost:5000 -t mp-frontend:latest .
