@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/setup-cd-clean
     paths:
       - 'starter/backend/**'
   workflow_dispatch:
